@@ -4,7 +4,7 @@
 
 <head>
     <title>First Clickable Panorama</title>
-    <script type="text/javascript" src="libs/three.js"></script>
+    <script type="text/javascript" src="libs/three.min.js"></script>
     <style>
         body {
             /* set margin to 0 and overflow to hidden, to go fullscreen */
@@ -40,7 +40,7 @@
         var axisHelper = new THREE.AxisHelper( 60 );
         scene.add( axisHelper );
 
-        //0, 0, 5 for camera in the middle
+
         camera.position.x = 0;
         camera.position.y = 0;
         camera.position.z = 0;
@@ -53,15 +53,14 @@
         spotLight.intensity = 1;
         scene.add(spotLight);
 
-        var ambiLight = new THREE.AmbientLight(0xd7d2b5);
+        var ambiLight = new THREE.AmbientLight(0xf4f5ec);
         scene.add(ambiLight);
-
 
 
         // add the output of the renderer to the html element
         document.getElementById("WebGL-output").appendChild(webGLRenderer.domElement);
 
-        var cylinder = createMesh(new THREE.CylinderGeometry(70, 70, 60, 30, 8, true), "panoramaTexture.jpg");
+        var cylinder = createMesh(new THREE.CylinderGeometry(70, 70, 60, 30, 8, true), "Harvard_Panorama_II.jpg");
 
         cylinder.position.x = 0;
         cylinder.position.y = 0;
@@ -69,19 +68,6 @@
         cylinder.rotateY(3.14/2);
 
         scene.add(cylinder);
-
-        var geometry = new THREE.BoxGeometry( 5, 10, 10 );
-        var material = new THREE.MeshLambertMaterial({color: 0x0000ff, transparent: true, opacity: 0.2});
-        var cube = new THREE.Mesh( geometry, material );
-        cube.position.z = -70;
-        cube.position.x = 4;
-        scene.add( cube );
-
-
-        var cubeTwo = new THREE.Mesh( geometry, material );
-        cubeTwo.position.z = -70;
-        cubeTwo.position.x = 15;
-        scene.add( cubeTwo );
 
         function createMesh(geom, imageFile) {
            var texture = THREE.ImageUtils.loadTexture("models/" + imageFile);
@@ -91,6 +77,22 @@
            var mesh = new THREE.Mesh(geom, mat);
            return mesh;
        }
+
+        var boxArray = [
+          [12 ,17, 4, -70, 2, 5, 0],
+          [20, 20, 5, 70, 15, 5, 0.26]
+        ];
+
+        for (var i = 0; i <= 1; i++){
+          var geometry = new THREE.BoxGeometry( boxArray[i][0], boxArray[i][1], boxArray[i][2] );
+          var material = new THREE.MeshLambertMaterial({color: 0xe4e5f1, transparent: true, opacity: 0.1});
+          var cube = new THREE.Mesh( geometry, material );
+          cube.position.z = boxArray[i][3];
+          cube.position.x = boxArray[i][4];
+          cube.position.y = boxArray[i][5];
+          cube.rotateY(boxArray[i][6]);
+          scene.add( cube );
+        }
 
 
         var turningRight = false;
@@ -112,13 +114,19 @@
 
             var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
 
-            var intersects = raycaster.intersectObjects([cube, cubeTwo]);
+            var intersects = raycaster.intersectObjects([cube]);
 
             if (intersects.length > 0) {
 
                 console.log(intersects[0]);
 
-                window.open('/panoramaTest.html');
+                if (intersects[0].object == cube){
+                  window.open('/panoramaTest.html');
+                } else {
+                  window.open('http://www.google.com');
+                }
+
+
 
                 //window.location.href = 'http://www.google.com';
 
@@ -132,25 +140,25 @@
 
             var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
 
-            var intersects = raycaster.intersectObjects([cube, cubeTwo]);
+            var intersects = raycaster.intersectObjects([cube]);
 
             if (intersects.length > 0) {
 
                 console.log(intersects[0]);
+                console.log(intersects[0].parameter1);
 
                 intersects[0].object.material.transparent = true;
-                intersects[0].object.material.opacity = 0.5;
+                intersects[0].object.material.opacity = 0.4;
             }
 
             setTimeout(revert, 3000);
+
 
         }
 
         function revert() {
             material.opacity = 0;
         }
-
-
 
         function updateCameraObject(){
           if (turningRight) {
